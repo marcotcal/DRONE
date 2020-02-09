@@ -1,2 +1,2 @@
 # DRONE
-My drone sofware
+My drone software
