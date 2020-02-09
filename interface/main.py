@@ -20,7 +20,7 @@ class MainWindow:
 
         GObject.threads_init()
 
-        objects = ["MainWindow", ]
+        objects = ["MainWindow", "AdjustYAW", "AdjustROLL", ]
 
         self.ard = serial.Serial('/dev/ttyUSB0',9600)
 
@@ -39,16 +39,26 @@ class MainWindow:
         self.ctrl6 = self.builder.get_object("CTRL06")
         self.ctrl7 = self.builder.get_object("CTRL07")
 
-        # Joysticks
         self.ping_counter = self.builder.get_object("PingCounter")
-        self.axis_throttle = self.builder.get_object("AxisThrottle")
+
+        # Joysticks
+
+        # Bar controls
+
         self.bar_throttle = self.builder.get_object("BarThrottle")
-        self.axis_pitch = self.builder.get_object("AxisPitch")
         self.bar_pitch = self.builder.get_object("BarPitch")
-        self.axis_yaw = self.builder.get_object("AxisYaw")
+
+        # Scale Controls
+
         self.bar_yaw = self.builder.get_object("BarYaw")
-        self.axis_roll = self.builder.get_object("AxisRoll")
         self.bar_roll = self.builder.get_object("BarRoll")
+
+        # Axis Indicators
+
+        self.axis_throttle = self.builder.get_object("AxisThrottle")
+        self.axis_pitch = self.builder.get_object("AxisPitch")
+        self.axis_yaw = self.builder.get_object("AxisYaw") 
+        self.axis_roll = self.builder.get_object("AxisRoll")
 
         def read_ping():
             count = 0
