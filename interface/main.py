@@ -4,6 +4,7 @@ from gi.repository import GLib, Gtk, Pango, GObject
 import threading
 import time
 import serial
+import math
 
 class MainWindow:
 
@@ -23,6 +24,8 @@ class MainWindow:
         objects = ["MainWindow", "AdjustYAW", "AdjustROLL", ]
 
         self.ard = serial.Serial('/dev/ttyUSB0',9600)
+
+        self.throttle = 0;
 
         self.builder = Gtk.Builder()
         self.builder.add_objects_from_file("/home/pi/DRONE/interface/drone.glade", objects)
@@ -68,8 +71,27 @@ class MainWindow:
                 time.sleep(1)
 
         def update_params(value):
-            self.axis_throttle.set_text(value[0])
-            self.bar_throttle.set_value(1023-int(value[0]))
+
+            add_throttle = (511 - int(value[0])) / 20 
+
+            # Joystick error correction
+            if abs(add_throttle) < 3:
+                add_throttle = 0
+
+            if add_throttle > 0: 
+                self.throttle += math.floor(add_throttle)
+            else:
+                self.throttle += math.ceil(add_throttle)
+
+            if self.throttle < 0:
+                self.throttle = 0;
+
+            if self.throttle > 1023:
+                self.throttle = 1023
+
+            # self.axis_throttle.set_text("{}".format(self.throttle))
+            self.axis_throttle.set_text("{}".format(self.throttle))
+            self.bar_throttle.set_value(self.throttle)
             self.axis_pitch.set_text(value[2])
             self.bar_pitch.set_value(1023-int(value[2]))
             self.axis_yaw.set_text(value[1])
