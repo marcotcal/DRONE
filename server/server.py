@@ -29,6 +29,11 @@ led8on = False
 
 kit.servo[0].angle = 90
 kit.servo[1].angle = 90
+kit.servo[2].angle = 0
+kit.servo[3].angle = 0
+kit.servo[4].angle = 0
+kit.servo[5].angle = 0
+kit.servo[6].angle = 0
 
 def main():
     start_server()
@@ -40,7 +45,7 @@ def gimble_horizontal(position):
     kit.servo[0].angle = position
 
 def start_server():
-    host = "192.168.0.87"
+    host = "192.168.1.1"
     port = 8888
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -78,6 +83,13 @@ def start_server():
 
 def client_thread(connection, ip, port, max_buffer_size = 5120):
     is_active = True
+    camera_horizontal = 90
+    camera_vertical = 90
+    elevator = 0
+    throttle = 0
+    aileron = 0
+    rudder = 0
+    auxiliary = 0
 
     while is_active:
         client_input = receive_input(connection, max_buffer_size)
@@ -88,7 +100,77 @@ def client_thread(connection, ip, port, max_buffer_size = 5120):
             print("Connection " + ip + ":" + port + " closed")
             is_active = False
         else:
-            print("Command {} {}".format(client_input, led1.value))
+
+            param = client_input.split(",")  
+            #print("Command {}".format(client_input))
+
+            if param[4] == "1":
+                led1.on()
+                led2.on()
+                led5.on()
+                led6.on()
+            else:
+                led1.off()
+                led2.off()
+                led5.off()
+                led6.off()
+
+            # camera gimbal
+
+            if param[8] == "1":
+                kit.servo[0].angle = 90
+                kit.servo[1].angle = 90
+
+            new_cam_h_pos = int(float(param[11]))
+            new_cam_v_pos = int(float(param[12]))
+
+            new_throttle = int(float(param[0]))
+
+            if new_throttle > 10:
+                if new_throttle < 60:
+                    new_throttle = 60
+                else:
+                    pass
+            else:
+                    pass
+
+            new_rudder =   int(float(param[1]))
+            new_elevator = int(float(param[2]))
+            new_aileron =  int(float(param[3]))
+            new_auxiliary = 0
+
+            if aileron != new_aileron:
+                aileron = new_aileron
+                #kit.servo[2].angle = aileron
+
+            if elevator != new_elevator:
+                elevator = new_elevator
+                #kit.servo[3].angle = elevator
+
+            if throttle != new_throttle:
+                throttle = new_throttle
+                print ('Throttle ',throttle)
+                kit.servo[12].angle = throttle
+                kit.servo[13].angle = throttle
+                kit.servo[14].angle = throttle
+                kit.servo[15].angle = throttle
+
+            if rudder != new_rudder:
+                rudder = new_rudder
+                #kit.servo[5].angle = rudder
+
+            if auxiliary != new_auxiliary:
+                auxiliary = new_auxiliary
+                #kit.servo[6].angle = auxiliary
+
+            if new_cam_h_pos != camera_horizontal:
+                camera_horizontal = new_cam_h_pos
+                kit.servo[0].angle = camera_horizontal
+
+            if new_cam_v_pos != camera_vertical:
+                camera_vertical = new_cam_v_pos
+                kit.servo[1].angle = camera_vertical
+
             if client_input == "B2":
                 if led1.value:
                     led1.off()
