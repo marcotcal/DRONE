@@ -40,7 +40,7 @@ def gimble_horizontal(position):
     kit.servo[0].angle = position
 
 def start_server():
-    host = "192.168.0.87"
+    host = "192.168.0.214"
     port = 8888
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

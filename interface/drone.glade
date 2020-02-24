@@ -2,6 +2,18 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="AdjustCameraHorizontal">
+    <property name="upper">180</property>
+    <property name="value">90</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustCameraVertical">
+    <property name="upper">180</property>
+    <property name="value">90</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="AdjustROLL">
     <property name="upper">1023</property>
     <property name="step_increment">1</property>
@@ -29,55 +41,56 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
-            <property name="homogeneous">True</property>
             <child>
-              <object class="GtkToggleButton" id="parameters_button">
-                <property name="label" translatable="yes">PARAMETERS</property>
+              <object class="GtkToggleButton" id="ParmetersButton">
+                <property name="label" translatable="yes">Parameters</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <signal name="pressed" handler="on_select_parameters" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <object class="GtkToggleButton" id="gps_button">
+              <object class="GtkToggleButton" id="CameraButton">
+                <property name="label" translatable="yes">Camera</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="pressed" handler="on_select_camera" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="GPSButton">
                 <property name="label" translatable="yes">GPS</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="telemetry_button">
-                <property name="label" translatable="yes">TELEMETRY</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
             <child>
-              <object class="GtkToggleButton" id="comunications_group">
-                <property name="label" translatable="yes">COMUNICATIONS</property>
+              <object class="GtkToggleButton" id="TelemetryButton">
+                <property name="label" translatable="yes">Telemetry</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">3</property>
               </packing>
@@ -93,7 +106,7 @@
                 <signal name="pressed" handler="on_exit_app" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">4</property>
               </packing>
@@ -118,11 +131,12 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStack">
+          <object class="GtkStack" id="MainArea">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="transition_type">over-left</property>
             <child>
-              <object class="GtkBox">
+              <object class="GtkBox" id="ParametersPage">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -855,6 +869,17 @@ ON</property>
                         <property name="position">4</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkLabel" id="message">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">5</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -866,6 +891,69 @@ ON</property>
               <packing>
                 <property name="name">page0</property>
                 <property name="title" translatable="yes">page0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkGrid" id="CameraPage">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkScale" id="CameraHorizontal">
+                    <property name="height_request">78</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="adjustment">AdjustCameraHorizontal</property>
+                    <property name="round_digits">1</property>
+                    <property name="draw_value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="CameraVertical">
+                    <property name="width_request">80</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="orientation">vertical</property>
+                    <property name="adjustment">AdjustCameraVertical</property>
+                    <property name="round_digits">1</property>
+                    <property name="draw_value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkDrawingArea">
+                    <property name="name">Camera</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSwitch">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="name">page1</property>
+                <property name="title" translatable="yes">page1</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
@@ -883,11 +971,17 @@ ON</property>
   </object>
   <object class="GtkSizeGroup">
     <property name="mode">both</property>
-    <widgets>
-      <widget name="gps_button"/>
-      <widget name="telemetry_button"/>
-      <widget name="parameters_button"/>
-      <widget name="comunications_group"/>
-    </widgets>
+  </object>
+  <object class="GtkTextTagTable">
+    <child type="tag">
+      <object class="GtkTextTag" id="Parametros">
+        <property name="font">Normal</property>
+      </object>
+    </child>
+    <child type="tag">
+      <object class="GtkTextTag" id="Camera">
+        <property name="font">Normal</property>
+      </object>
+    </child>
   </object>
 </interface>
