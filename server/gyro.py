@@ -54,19 +54,19 @@ def main(stdscr):
             acel_y = read_word_2c(0x3d)
             acel_z = read_word_2c(0x3f)
     
-            stdscr.addstr(15,10,"Gyro X {}".format(gyro_x/131))
-            stdscr.addstr(16,10,"Gyro Y {}".format(gyro_y/131))
-            stdscr.addstr(17,10,"Gyro Z {}".format(gyro_z/131))
+            stdscr.addstr(15,10,"Gyro X {0:.5f}".format(round(gyro_x/131),5))
+            stdscr.addstr(16,10,"Gyro Y {0:.5f}".format(round(gyro_y/131),5))
+            stdscr.addstr(17,10,"Gyro Z {0:.5f}".format(round(gyro_z/131),5))
     
-            stdscr.addstr(18,10,"Acel X {}".format(acel_x/16384))
-            stdscr.addstr(19,10,"Acel Y {}".format(acel_y/16384))
-            stdscr.addstr(20,10,"Acel Z {}".format(acel_z/16384))
+            stdscr.addstr(18,10,"Acel X {0:.5f}".format(round(acel_x/16384),5))
+            stdscr.addstr(19,10,"Acel Y {0:.5f}".format(round(acel_y/16384),5))
+            stdscr.addstr(20,10,"Acel Z {0:.5f}".format(round(acel_z/16384),5))
             
             rot_x = get_x_rotation(acel_x/16384, acel_y/16384, acel_z/16384) 
             rot_y = get_y_rotation(acel_x/16384, acel_y/16384, acel_z/16384) 
 
-            stdscr.addstr(22,10,"X Rot {}".format(rot_x))
-            stdscr.addstr(24,10,"Y Rot {}".format(rot_y))
+            stdscr.addstr(22,10,"X Rot {0:.0f}".format(round(rot_x),0))
+            stdscr.addstr(24,10,"Y Rot {0:.0f}".format(round(rot_y),0))
 
             stdscr.refresh()
             time.sleep(1)
