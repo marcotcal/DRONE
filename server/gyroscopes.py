@@ -23,12 +23,12 @@ class Gyroscopes:
 
     def __init__(self):
 
-        self.AxCal=0
-        self.AyCal=0
-        self.AzCal=0
-        self.GxCal=0
-        self.GyCal=0
-        self.GzCal=0
+        self.AccErrorX = 0
+        self.AccErrorY = 0
+
+        self.GyrErrorX = 0
+        self.GyrErrorY = 0
+        self.GyrErrorZ = 0
 
     def __del__(self):
 
@@ -54,9 +54,9 @@ class Gyroscopes:
         x = self.read_mpu(ACCEL_X)
         y = self.read_mpu(ACCEL_Y)
         z = self.read_mpu(ACCEL_Z)
-        Ax = x/16384.0 - self.AxCal
-        Ay = y/16384.0 - self.AyCal
-        Az = z/16384.0 - self.AzCal
+        Ax = x/16384.0 
+        Ay = y/16384.0
+        Az = z/16384.0
         
         return Ax,Ay,Az
 
@@ -64,9 +64,9 @@ class Gyroscopes:
         x = self.read_mpu(GYRO_X)
         y = self.read_mpu(GYRO_Y)
         z = self.read_mpu(GYRO_Z)
-        Gx = x/131.0 - self.GxCal
-        Gy = y/131.0 - self.GyCal
-        Gz = z/131.0 - self.GzCal
+        Gx = x/131.0
+        Gy = y/131.0
+        Gz = z/131.0
         
         return Gx, Gy, Gz
 
@@ -76,48 +76,56 @@ class Gyroscopes:
         
         return temp_c
 
-    def calibrate(self, cycles=50):
+    def calibrate(self, cycles=200):
         x = 0.0
         y = 0.0
         z = 0.0
+        AccErrorX = 0
+        AccErrorY = 0
 
         # accelerometers
 
         for i in range(cycles):
-            x = x + self.read_mpu(ACCEL_X)
-            y = y + self.read_mpu(ACCEL_Y)
-            z = z + self.read_mpu(ACCEL_Z)
-            
-        self.AxCal = x / cycles / 16384.0
-        self.AyCal = y / cycles / 16384.0
-        self.AzCal = z / cycles / 16384.0
+            x,y,z = self.accel() 
+            AccErrorX = AccErrorX + ((math.atan((y) / math.sqrt(math.pow((x), 2) + math.pow((z), 2))) * 180 / math.pi)) 
+            AccErrorY = AccErrorY + ((math.atan(-1 * (x) / math.sqrt(math.pow((y), 2) + math.pow((z), 2))) * 180 / math.pi))
 
-
+        AccErrorX = AccErrorX / cycles
+        AccErrorY = AccErrorY / cycles
 
         # gyroscopes 
 
         x = 0.0
         y = 0.0
         z = 0.0
+        GyrErrorX = 0
+        GyrErrorY = 0
+        GyrErrorZ = 0
 
         for i in range(cycles):
-            x = x + self.read_mpu(GYRO_X)
-            y = y + self.read_mpu(GYRO_Y)
-            z = z + self.read_mpu(GYRO_Z)
+            x,y,z = self.gyro() 
+            GyrErrorX = GyrErrorX + x 
+            GyrErrorY = GyrErrorY + y 
+            GyrErrorZ = GyrErrorZ + z 
 
-        self.GxCal = x / cycles / 131.0
-        self.GyCal = x / cycles / 131.0
-        self.GzCal = x / cycles / 131.0
+        GyrErrorX = GyrErrorX / cycles 
+        GyrErrorY = GyrErrorY / cycles 
+        GyrErrorZ = GyrErrorZ / cycles 
 
-        return self.AxCal, self.AyCal, self.AzCal, self.GxCal, self.GyCal, self.GzCal
+        self.AccErrorX = AccErrorX
+        self.AccErrorY = AccErrorY
+
+        self.GyrErrorX = GyrErrorX 
+        self.GyrErrorY = GyrErrorY 
+        self.GyrErrorZ = GyrErrorZ 
+
+        return AccErrorX, AccErrorY, GyrErrorX, GyrErrorY, GyrErrorZ 
 
     def get_y_rotation(self):
         x,y,z = self.accel()
-        radians = math.atan2(x, math.dist(y,z))
-        return -math.degrees(radians)
+        return (math.atan(-1 * x / math.sqrt(math.pow(y, 2) + math.pow(z, 2))) * 180 / math.pi) - self.AccErrorY;
  
     def get_x_rotation(self):
         x,y,z = self.accel()
-        radians = math.atan2(y, math.dist(x,z))
-        return math.degrees(radians)
+        return (math.atan(y / math.sqrt(math.pow(x, 2) + math.pow(z, 2))) * 180 / math.pi) - self.AccErrorX;
  

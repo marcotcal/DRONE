@@ -18,6 +18,7 @@ class DroneInterface:
         self.clear_oled()
         self.gyro = Gyroscopes()
         self.gyro.init_mpu() 
+        self.error = None
 
     def __del__(self):
 
@@ -68,21 +69,19 @@ class DroneInterface:
         self.oled.write_line(2, "Mem: " + mem_usage)
         self.oled.write_line(3, "Dsk: " + disk)
 
-
     def display_gyroscope(self, stop):
 
         error = ""
 
         while True:
-            try:
-                xr = self.gyro.get_x_rotation()
-                yr = self.gyro.get_y_rotation()
-                time.sleep(1)
-            except Exception as e:
-                error = str(e)
+            xr = self.gyro.get_x_rotation()
+            yr = self.gyro.get_y_rotation()
+
+            self.stdscr.addstr(16, 5,  "X : {0:.0f}".format(xr), curses.A_BOLD)
+            self.stdscr.addstr(17, 5,  "Y : {0:.0f}".format(yr), curses.A_BOLD)
+            self.stdscr.refresh()
 
             if stop():
-                print("Terminating gyroscope thread {}".format(error))
                 break;
 
     def command_read(self, stop):
@@ -100,9 +99,8 @@ class DroneInterface:
         thr_cmd.daemon = True
         thr_cmd.start()
 
-        thr_gyr = threading.Thread(target=self.display_gyroscope, args=(lambda: stop_thread,))
+        thr_gyr = threading.Thread(target=self.display_gyroscope, args=(lambda: stop_gyro,))
         thr_gyr.daemon = True
-        thr_gyr.start()
         
         try:
 
@@ -113,20 +111,33 @@ class DroneInterface:
                     stop_threads = True
                     break
 
+                elif ch == ord('1'):
+                    result = self.gyro.calibrate()
+                    self.stdscr.addstr(15, 5,  "Calibration {}".format(result), curses.A_BOLD)
+                    self.stdscr.refresh()
+
                 elif ch == ord('4'):
+                    stop_gyro = True
                     self.system_info()
 
+                elif ch == ord('2'):
+                    stop_gyro = False
+                    thr_gyr.start()
+                    thr_gyr.join()
+
                 elif ch == ord('5'):
+                    stop_gyro = True
                     self.clear_oled()
 
         except Exception as e: 
 
+            self.error = str(e)
             pass    
 
         self.shutdown_screen()
         stop_thread = True
+        stop_gyro = True
         thr_cmd.join()
-        thr_gyr.join()
 
 
 if __name__ == "__main__":
