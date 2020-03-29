@@ -92,6 +92,8 @@ class Gyroscopes:
         self.AyCal = y / cycles / 16384.0
         self.AzCal = z / cycles / 16384.0
 
+
+
         # gyroscopes 
 
         x = 0.0
@@ -109,13 +111,13 @@ class Gyroscopes:
 
         return self.AxCal, self.AyCal, self.AzCal, self.GxCal, self.GyCal, self.GzCal
 
-        def get_y_rotation(self):
-            x,y,z = self.accel()
-            radians = math.atan2(x, dist(y,z))
-            return -math.degrees(radians)
+    def get_y_rotation(self):
+        x,y,z = self.accel()
+        radians = math.atan2(x, math.dist(y,z))
+        return -math.degrees(radians)
  
-        def get_x_rotation(self):
-            x,y,z = self.accel()
-            radians = math.atan2(y, dist(x,z))
-            return math.degrees(radians)
+    def get_x_rotation(self):
+        x,y,z = self.accel()
+        radians = math.atan2(y, math.dist(x,z))
+        return math.degrees(radians)
  

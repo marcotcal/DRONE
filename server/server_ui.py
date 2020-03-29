@@ -71,7 +71,19 @@ class DroneInterface:
 
     def display_gyroscope(self, stop):
 
-        pass
+        error = ""
+
+        while True:
+            try:
+                xr = self.gyro.get_x_rotation()
+                yr = self.gyro.get_y_rotation()
+                time.sleep(1)
+            except Exception as e:
+                error = str(e)
+
+            if stop():
+                print("Terminating gyroscope thread {}".format(error))
+                break;
 
     def command_read(self, stop):
         while True:
@@ -87,6 +99,10 @@ class DroneInterface:
         thr_cmd = threading.Thread(target=self.command_read, args=(lambda: stop_thread,))
         thr_cmd.daemon = True
         thr_cmd.start()
+
+        thr_gyr = threading.Thread(target=self.display_gyroscope, args=(lambda: stop_thread,))
+        thr_gyr.daemon = True
+        thr_gyr.start()
         
         try:
 
@@ -110,6 +126,7 @@ class DroneInterface:
         self.shutdown_screen()
         stop_thread = True
         thr_cmd.join()
+        thr_gyr.join()
 
 
 if __name__ == "__main__":
