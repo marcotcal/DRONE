@@ -11,6 +11,7 @@ class DroneInterface:
     def __init__(self):
 
         self.stdscr = curses.initscr()
+        curses.start_color()        
         curses.noecho()
         curses.cbreak()
         self.stdscr.keypad(1)
@@ -19,6 +20,10 @@ class DroneInterface:
         self.gyro = Gyroscopes()
         self.gyro.init_mpu() 
         self.error = None
+        curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
 
     def __del__(self):
 
@@ -30,18 +35,18 @@ class DroneInterface:
 
     def menu_main(self):
 
-        self.stdscr.addstr(7,  5,  '1 - Calibrate Gyroscopes', curses.A_BOLD)
-        self.stdscr.addstr(8,  5,  '2 - Show Gyroscope Values', curses.A_BOLD)
-        self.stdscr.addstr(9,  5,  '3 - Show Remote Control Throttle, Pitch, Yaw, Roll', curses.A_BOLD)
-        self.stdscr.addstr(10, 5,  '4 - Display Statistics', curses.A_BOLD)
-        self.stdscr.addstr(11, 5,  '5 - Clear Display', curses.A_BOLD)
+        self.stdscr.addstr(7,  5,  '1 - Calibrate Gyroscopes', curses.A_BOLD | curses.color_pair(1))
+        self.stdscr.addstr(8,  5,  '2 - Show Gyroscope Values', curses.A_BOLD | curses.color_pair(1))
+        self.stdscr.addstr(9,  5,  '3 - Show Remote Control Throttle, Pitch, Yaw, Roll', curses.A_BOLD | curses.color_pair(1))
+        self.stdscr.addstr(10, 5,  '4 - Display Statistics', curses.A_BOLD | curses.color_pair(1))
+        self.stdscr.addstr(11, 5,  '5 - Clear Display', curses.A_BOLD | curses.color_pair(1))
 
     def init_screen(self):
 
         self.stdscr.border(0)
         self.stdscr.addstr(0, 4, ' Drone Server Interface ', curses.A_BOLD)
         self.menu_main()
-        self.stdscr.addstr(22, 5, 'Press q to close this screen', curses.A_NORMAL)
+        self.stdscr.addstr(22, 5, 'Press q to close this screen', curses.A_NORMAL | curses.color_pair(3))
         self.stdscr.addstr(20, 5, 'Option: ', curses.A_BOLD)
 
     def shutdown_screen(self):
@@ -77,9 +82,11 @@ class DroneInterface:
             xr = self.gyro.get_x_rotation()
             yr = self.gyro.get_y_rotation()
 
-            self.stdscr.addstr(16, 5,  "X : {0:.0f}".format(xr), curses.A_BOLD)
-            self.stdscr.addstr(17, 5,  "Y : {0:.0f}".format(yr), curses.A_BOLD)
+            self.stdscr.addstr(15, 5,  "Rotation X : {0:.0f}      ".format(xr), curses.A_BOLD | curses.color_pair(2))
+            self.stdscr.addstr(16, 5,  "Rotation Y : {0:.0f}      ".format(yr), curses.A_BOLD | curses.color_pair(2))
+            self.stdscr.addstr(20, 5, 'Option: ', curses.A_BOLD)
             self.stdscr.refresh()
+            time.sleep(1)
 
             if stop():
                 break;
@@ -91,6 +98,14 @@ class DroneInterface:
             if stop():
                 print("Terminating command thread")
                 break;
+
+    def clear_outputs(self):
+        stop_gyro = True
+        self.clear_oled()
+        self.stdscr.addstr(15, 5,  " "*20, curses.A_NORMAL)
+        self.stdscr.addstr(16, 5,  " "*20, curses.A_NORMAL)
+        self.stdscr.addstr(20, 5, 'Option: ', curses.A_BOLD)
+        self.stdscr.refresh()
 
     def main_loop(self):
     
@@ -107,12 +122,15 @@ class DroneInterface:
             self.init_screen()
             while True:
                 ch = self.stdscr.getch()
-                if ch == ord('q'):
+                if ch == ord('q') or ch == ord('Q'):
                     stop_threads = True
+                    stop_gyro = True
                     break
 
                 elif ch == ord('1'):
-                    result = self.gyro.calibrate()
+                    stop_gyro = True
+                    AccelErrorX, AccelErrorY, GyroErrorX, GyroErrorY, GyroErrorZ = self.gyro.calibrate()
+
                     self.stdscr.addstr(15, 5,  "Calibration {}".format(result), curses.A_BOLD)
                     self.stdscr.refresh()
 
@@ -123,11 +141,9 @@ class DroneInterface:
                 elif ch == ord('2'):
                     stop_gyro = False
                     thr_gyr.start()
-                    thr_gyr.join()
 
                 elif ch == ord('5'):
-                    stop_gyro = True
-                    self.clear_oled()
+                    self.clear_outputs()
 
         except Exception as e: 
 
@@ -137,6 +153,8 @@ class DroneInterface:
         self.shutdown_screen()
         stop_thread = True
         stop_gyro = True
+        if thr_gyr.is_alive():
+            thr_gyr.join()
         thr_cmd.join()
 
 
