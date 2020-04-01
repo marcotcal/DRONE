@@ -82,8 +82,8 @@ class DroneInterface:
             xr = self.gyro.get_x_rotation()
             yr = self.gyro.get_y_rotation()
 
-            self.stdscr.addstr(15, 5,  "Rotation X : {0:.0f}      ".format(xr), curses.A_BOLD | curses.color_pair(2))
-            self.stdscr.addstr(16, 5,  "Rotation Y : {0:.0f}      ".format(yr), curses.A_BOLD | curses.color_pair(2))
+            self.stdscr.addstr(14, 5,  "Rotation X : {0:.0f}      ".format(xr), curses.A_BOLD | curses.color_pair(2))
+            self.stdscr.addstr(15, 5,  "Rotation Y : {0:.0f}      ".format(yr), curses.A_BOLD | curses.color_pair(2))
             self.stdscr.addstr(20, 5, 'Option: ', curses.A_BOLD)
             self.stdscr.refresh()
             time.sleep(1)
@@ -99,13 +99,18 @@ class DroneInterface:
                 print("Terminating command thread")
                 break;
 
-    def clear_outputs(self):
-        stop_gyro = True
+    def clear_results(self):
+
         self.clear_oled()
+        self.stdscr.addstr(14, 5,  " "*20, curses.A_NORMAL)
+        self.stdscr.addstr(15, 5,  " "*20, curses.A_NORMAL)
         self.stdscr.addstr(15, 5,  " "*20, curses.A_NORMAL)
         self.stdscr.addstr(16, 5,  " "*20, curses.A_NORMAL)
+        self.stdscr.addstr(17, 5,  " "*20, curses.A_NORMAL)
+        self.stdscr.addstr(18, 5,  " "*20, curses.A_NORMAL)
         self.stdscr.addstr(20, 5, 'Option: ', curses.A_BOLD)
         self.stdscr.refresh()
+
 
     def main_loop(self):
     
@@ -113,9 +118,6 @@ class DroneInterface:
         thr_cmd = threading.Thread(target=self.command_read, args=(lambda: stop_thread,))
         thr_cmd.daemon = True
         thr_cmd.start()
-
-        thr_gyr = threading.Thread(target=self.display_gyroscope, args=(lambda: stop_gyro,))
-        thr_gyr.daemon = True
         
         try:
 
@@ -131,7 +133,17 @@ class DroneInterface:
                     stop_gyro = True
                     AccelErrorX, AccelErrorY, GyroErrorX, GyroErrorY, GyroErrorZ = self.gyro.calibrate()
 
-                    self.stdscr.addstr(15, 5,  "Calibration {}".format(result), curses.A_BOLD)
+                    self.stdscr.addstr(14, 5,  "Accel Error X : {0:.2f}".format(AccelErrorX), 
+                            curses.A_BOLD | curses.color_pair(2))
+                    self.stdscr.addstr(15, 5,  "Accel Error Y : {0:.2f}".format(AccelErrorY), 
+                            curses.A_BOLD | curses.color_pair(2))
+                    self.stdscr.addstr(16, 5,  "Gyro Error Y : {0:.2f}".format(GyroErrorY), 
+                            curses.A_BOLD | curses.color_pair(2))
+                    self.stdscr.addstr(17, 5,  "Gyro Error Y : {0:.2f}".format(GyroErrorY), 
+                            curses.A_BOLD | curses.color_pair(2))
+                    self.stdscr.addstr(18, 5,  "Gyro Error Z : {0:.2f}".format(GyroErrorZ), 
+                            curses.A_BOLD | curses.color_pair(2))
+                    self.stdscr.addstr(20, 5, 'Option: ', curses.A_BOLD)
                     self.stdscr.refresh()
 
                 elif ch == ord('4'):
@@ -139,11 +151,15 @@ class DroneInterface:
                     self.system_info()
 
                 elif ch == ord('2'):
+                    self.clear_results()
                     stop_gyro = False
+                    thr_gyr = threading.Thread(target=self.display_gyroscope, args=(lambda: stop_gyro,))
+                    thr_gyr.daemon = True
                     thr_gyr.start()
 
                 elif ch == ord('5'):
-                    self.clear_outputs()
+                    stop_gyro = True
+                    self.clear_results()
 
         except Exception as e: 
 
