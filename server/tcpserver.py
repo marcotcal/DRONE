@@ -6,6 +6,7 @@ import logging
 from gpiozero import LED
 from time import sleep
 from adafruit_servokit import ServoKit
+import constants
 
 
 class TCPServer:
@@ -14,14 +15,14 @@ class TCPServer:
 
         self.kit = ServoKit(channels=16)
 
-        self.led1 = LED(16)
-        self.led2 = LED(20)
-        self.led3 = LED(21)
-        self.led4 = LED(17)
-        self.led5 = LED(27)
-        self.led6 = LED(22)
-        self.led7 = LED(26)
-        self.led8 = LED(19)
+        self.led1 = LED(constants.LED_01)
+        self.led2 = LED(constants.LED_02)
+        self.led3 = LED(constants.LED_03)
+        self.led4 = LED(constants.LED_04)
+        self.led5 = LED(constants.LED_05)
+        self.led6 = LED(constants.LED_06)
+        self.led7 = LED(constants.LED_07)
+        self.led8 = LED(constants.LED_08)
 
         self.led1on = False
         self.led2on = False
