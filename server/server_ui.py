@@ -6,6 +6,8 @@ import time
 from oleddisplay import OledDisplay
 from gyroscopes import Gyroscopes
 
+_DISPLAY_PRESENT_ = False
+
 class DroneInterface:
 
     def __init__(self):
@@ -15,8 +17,9 @@ class DroneInterface:
         curses.noecho()
         curses.cbreak()
         self.stdscr.keypad(1)
-        self.oled = OledDisplay()
-        self.clear_oled()
+        if _DISPLAY_PRESENT_:
+            self.oled = OledDisplay()
+            self.clear_oled()
         self.gyro = Gyroscopes()
         self.gyro.init_mpu() 
         self.error = None
@@ -57,6 +60,9 @@ class DroneInterface:
         curses.endwin()
 
     def system_info(self):
+
+        if not _DISPLAY_PRESENT_:
+            return;
 
         self.clear_oled()
 
@@ -101,7 +107,8 @@ class DroneInterface:
 
     def clear_results(self):
 
-        self.clear_oled()
+        if _DISPLAY_PRESENT_:
+            self.clear_oled()
         self.stdscr.addstr(14, 5,  " "*20, curses.A_NORMAL)
         self.stdscr.addstr(15, 5,  " "*20, curses.A_NORMAL)
         self.stdscr.addstr(15, 5,  " "*20, curses.A_NORMAL)
