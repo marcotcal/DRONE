@@ -1,0 +1,35 @@
+Basic test
+
+stty -F /dev/serial0 raw 9600 cs8 clocal -cstopb
+
+cat /dev/serial0
+
+
+First disable service
+
+sudo systemctl stop gpsd.socket
+sudo systemctl disable gpsd.socket
+
+sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock
+
+gpsmon
+
+cgps -s
+
+Data 
+
+packages = {
+        'VERSION': {'release', 'proto_major', 'proto_minor', 'remote', 'rev'},
+        'TPV': {'alt', 'climb', 'device', 'epc', 'epd', 'eps', 'ept', 'epv', 'epx', 'epy', 'lat', 'lon', 'mode', 'speed', 'tag', 'time', 'track'},
+        'SKY': {'satellites', 'gdop', 'hdop', 'pdop', 'tdop', 'vdop', 'xdop', 'ydop'},
+        # Subset of SKY: 'satellites': {'PRN', 'ss', 'el', 'az', 'used'}  # is always present.
+        'GST': {'alt', 'device', 'lat', 'lon', 'major', 'minor', 'orient', 'rms', 'time'},
+        'ATT': {'acc_len', 'acc_x', 'acc_y', 'acc_z', 'depth', 'device', 'dip', 'gyro_x', 'gyro_y', 'heading', 'mag_len', 'mag_st', 'mag_x',
+                'mag_y', 'mag_z', 'pitch', 'pitch_st', 'roll', 'roll_st', 'temperature', 'time', 'yaw', 'yaw_st'},
+        # 'POLL': {'active', 'tpv', 'sky', 'time'},
+        'PPS': {'device', 'clock_sec', 'clock_nsec', 'real_sec', 'real_nsec', 'precision'},
+        'TOFF': {'device', 'clock_sec', 'clock_nsec', 'real_sec', 'real_nsec'},
+        'DEVICES': {'devices', 'remote'},
+        'DEVICE': {'activated', 'bps', 'cycle', 'mincycle', 'driver', 'flags', 'native', 'parity', 'path', 'stopbits', 'subtype'},
+        # 'AIS': {}  # see: http://catb.org/gpsd/AIVDM.html
+        'ERROR': {'message'}}  # TODO: Full suite of possible GPSD output

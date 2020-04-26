@@ -6,7 +6,7 @@ import time
 from oleddisplay import OledDisplay
 from gyroscopes import Gyroscopes
 
-_DISPLAY_PRESENT_ = False
+_DISPLAY_PRESENT_ = True
 
 class DroneInterface:
 
